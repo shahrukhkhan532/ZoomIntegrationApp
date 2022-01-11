@@ -1,0 +1,35 @@
+{
+  "id": "uh3GgQk1Qe-6HizJWz3YMQ",
+  "first_name": "ShahRukh",
+  "last_name": "Khan",
+  "email": "khanxhahrukh@gmail.com",
+  "type": 1,
+  "role_name": "Owner",
+  "pmi": 8987671853,
+  "use_pmi": false,
+  "personal_meeting_url": "https://us04web.zoom.us/j/8987671853?pwd=eDdmN1FwR2RKWXNvcmpiUGhpVnIyQT09",
+  "timezone": "",
+  "verified": 0,
+  "dept": "",
+  "created_at": "2020-07-13T05:34:07Z",
+  "last_login_time": "2022-01-11T20:17:22Z",
+  "last_client_version": "5.6.0.536(mac)",
+  "pic_url": "https://us04web.zoom.us/p/uh3GgQk1Qe-6HizJWz3YMQ/9deedc49-9694-4cbc-8a5f-3131d642e719-3176",
+  "host_key": "621470",
+  "cms_user_id": "",
+  "jid": "uh3ggqk1qe-6hizjwz3ymq@xmpp.zoom.us",
+  "group_ids": [
+  ],
+  "im_group_ids": [
+  ],
+  "account_id": "E9AFx7PpSsu0Og3vQ_H4HA",
+  "language": "",
+  "phone_country": "",
+  "phone_number": "",
+  "status": "active",
+  "login_types": [
+    1,
+    100
+  ],
+  "role_id": "0"
+}
