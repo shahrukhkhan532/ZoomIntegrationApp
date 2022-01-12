@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Text;
 using ZoomIntegrationApp.Models;
+using ZoomIntegrationApp.Services;
 
 namespace ZoomIntegrationApp.Controllers
 {
@@ -12,17 +14,23 @@ namespace ZoomIntegrationApp.Controllers
         private readonly IWebHostEnvironment _environment;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IOptions<Zoom> _options;
+        private readonly IFiles _filesWriter;
+        private readonly IMemoryCache _memoryCache;
 
         public MeetingController(
             IConfiguration iConfig,
             IWebHostEnvironment environment,
             IHttpClientFactory httpClientFactory,
-            IOptions<Zoom> options)
+            IOptions<Zoom> options,
+            IFiles filesWriter,
+            IMemoryCache memoryCache)
         {
             _iConfig = iConfig;
             _environment = environment;
             _httpClientFactory = httpClientFactory;
             _options = options;
+            _filesWriter = filesWriter;
+            _memoryCache = memoryCache;
         }
         public string AuthorizationHeadewr
         {
@@ -56,29 +64,30 @@ namespace ZoomIntegrationApp.Controllers
             }
             string filepath = directoryPath + "\\appsettings.json";
             System.IO.File.WriteAllText(filepath, JsonConvert.SerializeObject(model, Formatting.Indented));
-
-
-            await GetUserDetails(model.access_token);
+            var cacheExpiryOptions = new MemoryCacheEntryOptions
+            {
+                AbsoluteExpiration = DateTime.Now.AddMinutes(50),
+                Priority = CacheItemPriority.High,
+                SlidingExpiration = TimeSpan.FromMinutes(50)
+            };
+            _memoryCache.Set("cacheKey", model, cacheExpiryOptions);
             return RedirectToAction("Index");
         }
         public IActionResult Index()
         {
             return View();
         }
-        public async Task GetUserDetails(string accessToken)
+        public async Task<IActionResult> GetUserDetails()
         {
+            var model = _memoryCache.Get<LoginResponce>("cacheKey");
             var client = _httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.Add("Authorization", string.Format("Bearer {0}", accessToken));
+            client.DefaultRequestHeaders.Add("Authorization", string.Format("Bearer {0}", model.access_token));
             var response = await client.GetAsync("https://api.zoom.us/v2/users/me");
-            var resulrt = await response.Content.ReadAsStringAsync();
+            var result = await response.Content.ReadAsStringAsync();
+            ZoomUser zoomUser = JsonConvert.DeserializeObject<ZoomUser>(result);
+            _filesWriter.WriteUserDetails(result);
 
-            string directoryPath = _environment.WebRootPath + "\\sitemaps\\";
-            if (!Directory.Exists(directoryPath))
-            {
-                Directory.CreateDirectory(directoryPath);
-            }
-            string filepath = directoryPath + "\\usersDetails.json";
-            System.IO.File.WriteAllText(filepath, resulrt);
+            return View(zoomUser);
         }
     }
 }

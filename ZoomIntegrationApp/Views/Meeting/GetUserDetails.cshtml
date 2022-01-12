@@ -1,0 +1,52 @@
+﻿@model ZoomIntegrationApp.Models.ZoomUser
+<style>
+    .container {
+        padding: 2rem 0rem;
+    }
+
+    h4 {
+        margin: 2rem 0rem 1rem;
+    }
+
+    .table-image {
+        td, th
+
+    {
+        vertical-align: middle;
+    }
+
+    }
+</style>
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <table class="table table-image">
+                <thead>
+                    <tr>
+                        <th scope="col">Id</th>
+                        <th scope="col">First Name</th>
+                        <th scope="col">Last Name</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Created At</th>
+                        <th scope="col">Image</th>
+                        <th scope="col">Account Id</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">@Model.id</th>
+                        <td>@Model.first_name</td>
+                        <td>@Model.last_name</td>
+                        <td>@Model.email</td>
+                        <td>@Model.created_at</td>
+                        <td class="w-25">
+                            <img src="@Model.pic_url" class="img-fluid img-thumbnail" alt="Sheep">
+                        </td>
+                        <td>@Model.account_id</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

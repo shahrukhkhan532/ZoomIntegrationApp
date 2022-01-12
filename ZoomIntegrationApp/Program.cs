@@ -6,7 +6,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddTransient<IMeetingService, MeetingService>();
+builder.Services.AddTransient<IFiles, Files>();
 builder.Services.AddHttpClient();
+builder.Services.AddMemoryCache();
 ConfigurationManager configuration = builder.Configuration;
 builder.Services.Configure<Zoom>(configuration.GetSection("Zoom"));
 var app = builder.Build();
