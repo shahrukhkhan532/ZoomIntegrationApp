@@ -10,27 +10,24 @@ namespace ZoomIntegrationApp.Controllers
 {
     public class MeetingController : Controller
     {
-        private readonly IConfiguration _iConfig;
         private readonly IWebHostEnvironment _environment;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IOptions<Zoom> _options;
-        private readonly IFiles _filesWriter;
         private readonly IMemoryCache _memoryCache;
+        private readonly IMeetingService _meetingService;
 
         public MeetingController(
-            IConfiguration iConfig,
             IWebHostEnvironment environment,
             IHttpClientFactory httpClientFactory,
             IOptions<Zoom> options,
-            IFiles filesWriter,
-            IMemoryCache memoryCache)
+            IMemoryCache memoryCache,
+            IMeetingService meetingService)
         {
-            _iConfig = iConfig;
             _environment = environment;
             _httpClientFactory = httpClientFactory;
             _options = options;
-            _filesWriter = filesWriter;
             _memoryCache = memoryCache;
+            _meetingService = meetingService;
         }
         public string AuthorizationHeadewr
         {
@@ -43,8 +40,8 @@ namespace ZoomIntegrationApp.Controllers
         }
         public IActionResult SignIn()
         {
-            var saf = string.Format(_options.Value.AuthorizationUrl, _options.Value.ClientID, _options.Value.RedirectUrl);
-            return Redirect(saf);
+            var Url = string.Format(_options.Value.AuthorizationUrl, _options.Value.ClientID, _options.Value.RedirectUrl);
+            return Redirect(Url);
         }
         public async Task<IActionResult> zoom(string code)
         {
@@ -79,15 +76,8 @@ namespace ZoomIntegrationApp.Controllers
         }
         public async Task<IActionResult> GetUserDetails()
         {
-            var model = _memoryCache.Get<LoginResponce>("cacheKey");
-            var client = _httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.Add("Authorization", string.Format("Bearer {0}", model.access_token));
-            var response = await client.GetAsync("https://api.zoom.us/v2/users/me");
-            var result = await response.Content.ReadAsStringAsync();
-            ZoomUser zoomUser = JsonConvert.DeserializeObject<ZoomUser>(result);
-            _filesWriter.WriteUserDetails(result);
-
-            return View(zoomUser);
+            var user = await _meetingService.GetUserDetails();
+            return View(user);
         }
     }
 }
