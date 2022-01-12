@@ -1,3 +1,4 @@
+using ZoomIntegrationApp.Models;
 using ZoomIntegrationApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -5,6 +6,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddTransient<IMeetingService, MeetingService>();
+builder.Services.AddHttpClient();
+ConfigurationManager configuration = builder.Configuration;
+builder.Services.Configure<Zoom>(configuration.GetSection("Zoom"));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

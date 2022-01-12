@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Text;
 using ZoomIntegrationApp.Models;
@@ -9,30 +10,38 @@ namespace ZoomIntegrationApp.Controllers
     {
         private readonly IConfiguration _iConfig;
         private readonly IWebHostEnvironment _environment;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IOptions<Zoom> _options;
 
-        public MeetingController(IConfiguration iConfig, IWebHostEnvironment environment)
+        public MeetingController(
+            IConfiguration iConfig,
+            IWebHostEnvironment environment,
+            IHttpClientFactory httpClientFactory,
+            IOptions<Zoom> options)
         {
             _iConfig = iConfig;
             _environment = environment;
+            _httpClientFactory = httpClientFactory;
+            _options = options;
         }
         public string AuthorizationHeadewr
         {
             get
             {
-                var planTextBytes = Encoding.UTF8.GetBytes($"{_iConfig.GetValue<string>("Zoom:ClientID")}:{_iConfig.GetValue<string>("Zoom:ClientSecret")}");
+                var planTextBytes = Encoding.UTF8.GetBytes($"{_options.Value.ClientID}:{_options.Value.ClientSecret}");
                 var encodedString = Convert.ToBase64String(planTextBytes);
                 return $"Basic {encodedString}";
             }
         }
         public IActionResult SignIn()
         {
-            var saf = string.Format(_iConfig.GetValue<string>("Zoom:AuthorizationUrl"), _iConfig.GetValue<string>("Zoom:ClientID"), _iConfig.GetValue<string>("Zoom:RedirectUrl"));
+            var saf = string.Format(_options.Value.AuthorizationUrl, _options.Value.ClientID, _options.Value.RedirectUrl);
             return Redirect(saf);
         }
         public async Task<IActionResult> zoom(string code)
         {
-            using var client = new HttpClient();
-            var url = string.Format(_iConfig.GetValue<string>("Zoom:AccessTokenUrl"), code, _iConfig.GetValue<string>("Zoom:RedirectUrl"));
+            var client = _httpClientFactory.CreateClient();
+            var url = string.Format(_options.Value.AccessTokenUrl, code, _options.Value.RedirectUrl);
             client.DefaultRequestHeaders.Add("Authorization", string.Format(AuthorizationHeadewr));
             var response = await client.PostAsync(url, null);
 
@@ -58,7 +67,7 @@ namespace ZoomIntegrationApp.Controllers
         }
         public async Task GetUserDetails(string accessToken)
         {
-            using var client = new HttpClient();
+            var client = _httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.Add("Authorization", string.Format("Bearer {0}", accessToken));
             var response = await client.GetAsync("https://api.zoom.us/v2/users/me");
             var resulrt = await response.Content.ReadAsStringAsync();
