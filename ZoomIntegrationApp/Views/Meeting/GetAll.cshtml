@@ -1,0 +1,36 @@
+﻿@model List<ZoomIntegrationApp.Models.MeetingResponce>
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Id</th>
+                        <th scope="col">Topic</th>
+                        <th scope="col">Start Time</th>
+                        <th scope="col">Duration</th>
+                        <th scope="col">TimeZone</th>
+                        <th scope="col">Join URL</th>
+                        <th scope="col" colspan="2">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <th scope="row">@item.id</th>
+                            <td>@item.topic</td>
+                            <td>@item.start_time.ToString("dd-MMM-yyyy hh:mm")</td>
+                            <td>@item.duration</td>
+                            <td>@item.timezone</td>
+                            <td>@item.join_url</td>
+                            <td><a class="btn btn-primary" href="@Url.Action("GetByID","Meeting", new { ID = item.id })">View</a></td>
+                            <td><a class="btn btn-danger" href="@Url.Action("Delete","Meeting", new { ID = item.id })">Delete</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
